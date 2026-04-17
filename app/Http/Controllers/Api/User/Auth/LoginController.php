@@ -25,9 +25,6 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
-
-
-
     /**
      * Handle a login request to the application.
      *

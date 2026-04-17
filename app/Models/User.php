@@ -48,9 +48,13 @@ class User extends Authenticatable
         ];
     }
 
-
     public function scopeAuth()
     {
         return $this->where('id',auth()->user()->id);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class,'user_id','id');
     }
 }
