@@ -25,7 +25,7 @@ class Response{
 
     public static function success($message,$data,$status = 200){
         return response()->json([
-            'success'   => true,
+            'success' => true,
             'message' => $message,
             'data'    => $data,
         ],$status);
