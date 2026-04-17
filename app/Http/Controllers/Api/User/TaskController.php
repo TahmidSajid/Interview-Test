@@ -4,6 +4,11 @@ namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\Response;
+use App\Http\Requests\User\CompleteTaskRequest;
+use App\Http\Requests\User\DeleteTaskRequest;
+use App\Http\Requests\User\SearchTaskRequest;
+use App\Http\Requests\User\StoreTaskRequest;
+use App\Http\Requests\User\UpdateTaskRequest;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
@@ -30,20 +35,9 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'title'       => 'required|string',
-            'description' => 'required|string',
-            'status'      => 'required|' . Rule::in(['pending', 'in_progress', 'completed']),
-            'due_date'    => 'nullable|date|date_format:d-m-Y|after_or_equal:today'
-        ]);
-
-        if ($validator->fails()) {
-            return Response::validation($validator->errors()->all(), [], 400);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validated();
 
         try {
             Task::create([
@@ -63,21 +57,9 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(UpdateTaskRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'id'          => 'required|string|exists:tasks,id',
-            'title'       => 'required|string',
-            'description' => 'required|string',
-            'status'      => 'required|' . Rule::in(['pending', 'in_progress', 'completed']),
-            'due_date'    => 'nullable|date|date_format:d-m-Y|after_or_equal:today'
-        ]);
-
-        if ($validator->fails()) {
-            return Response::validation($validator->errors()->all(), [], 400);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validated();
 
         try {
             Task::where('id', $validated['id'])->update([
@@ -96,17 +78,9 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function delete(Request $request)
+    public function delete(DeleteTaskRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'id'          => 'required|string|exists:tasks,id',
-        ]);
-
-        if ($validator->fails()) {
-            return Response::validation($validator->errors()->all(), [], 400);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validated();
 
         try {
             Task::where('id', $validated['id'])->delete();
@@ -118,18 +92,9 @@ class TaskController extends Controller
     }
 
 
-    public function complete(Request $request)
+    public function complete(CompleteTaskRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'id'          => 'required|string|exists:tasks,id',
-        ]);
-
-        if ($validator->fails()) {
-            return Response::validation($validator->errors()->all(), [], 400);
-        }
-
-        $validated = $validator->validated();
-
+        $validated = $request->validated();
 
         try {
             Task::where('id', $validated['id'])->update([
@@ -143,27 +108,17 @@ class TaskController extends Controller
     }
 
 
-    public function search(Request $request)
+    public function search(SearchTaskRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'title'       => 'nullable|string',
-            'status'      => 'nullable|' . Rule::in(['pending', 'in_progress', 'completed']),
-            'due_date'    => 'nullable|date|date_format:d-m-Y|after_or_equal:today'
-        ]);
+        $validated = $request->validated();
 
-        if ($validator->fails()) {
-            return Response::validation($validator->errors()->all(), [], 400);
-        }
+        $due_date = isset($validated['due_date']) ? Carbon::createFromFormat('d-m-Y', $validated['due_date'])->format('Y-m-d') : '';
 
-        $validated = $validator->validated();
-
-        $task = Task::where('user_id', auth()->user()->id)->searchTitle($validated['title'])
-            ->filterStatus($validated['status'])
-            ->filterDueDate(Carbon::createFromFormat('d-m-Y', $validated['due_date'])->format('Y-m-d'))
+        $task = Task::where('user_id', auth()->user()->id)->searchTitle($validated['title'] ?? '')
+            ->filterStatus($validated['status'] ?? '')
+            ->filterDueDate($due_date)
             ->latest()
-            ->get()->all();
-
-
+            ->get();
 
         return Response::success('Task Search Successful', [
             'task' => $task
