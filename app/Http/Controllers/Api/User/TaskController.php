@@ -11,13 +11,9 @@ use App\Http\Requests\User\StoreTaskRequest;
 use App\Http\Requests\User\UpdateTaskRequest;
 use App\Http\Resources\User\TaskResource;
 use App\Models\Task;
-use App\Models\User;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
 {
@@ -128,7 +124,7 @@ class TaskController extends Controller
             ->filterStatus($validated['status'] ?? '')
             ->filterDueDate($due_date)
             ->latest()
-            ->paginate(1)
+            ->paginate(3)
             ->withQueryString();
 
         return Response::success('Task Search Successful', [

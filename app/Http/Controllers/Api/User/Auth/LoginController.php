@@ -59,7 +59,7 @@ class LoginController extends Controller
             return $this->authenticated($request,$user,$token);
         }
 
-        return Response::error('Credential didnot matched',[],400);
+        return Response::error('Credential did not matched',[],401);
 
     }
 

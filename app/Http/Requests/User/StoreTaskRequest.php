@@ -38,7 +38,7 @@ class StoreTaskRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(
-            Response::error($validator->errors()->all(),[],400)
+            Response::validation($validator->errors()->all(),[])
         );
     }
 }

@@ -119,7 +119,7 @@ class RegisterController extends Controller
             'user_info' => $user,
         ];
 
-        return Response::success('User Registration Successfull',$data,200);
+        return Response::success('User Registration Successfull',$data,201);
     }
 
 }
