@@ -17,6 +17,9 @@ Requirements
 6. configure database [DB_DATABASE=task_manager, DB_USERNAME=root, DB_PASSWORD=]
 7. php artisan migrate:fresh --seed
 8. php artisan passport:client --personal
+9. php artisan passport:keys
+10. php artisan serve
+
 
 AND in another terminal:
 1. npm install
