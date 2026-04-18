@@ -9,6 +9,7 @@ use App\Http\Requests\User\DeleteTaskRequest;
 use App\Http\Requests\User\SearchTaskRequest;
 use App\Http\Requests\User\StoreTaskRequest;
 use App\Http\Requests\User\UpdateTaskRequest;
+use App\Http\Resources\User\TaskResource;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
@@ -25,10 +26,19 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Auth::user()->tasks()->get();
+        $tasks = Auth::user()->tasks()->paginate(3);
 
         return Response::success('Task Fetched Successfully', [
-            'task' => $tasks,
+            'task' => TaskResource::collection($tasks),
+            'meta' => [
+                'current_page' => $tasks->currentPage(),
+                'last_page' => $tasks->lastPage(),
+                'total' => $tasks->total(),
+            ],
+            'links' => [
+                'next' => $tasks->nextPageUrl(),
+                'prev' => $tasks->previousPageUrl(),
+            ]
         ], 200);
     }
 
@@ -114,14 +124,24 @@ class TaskController extends Controller
 
         $due_date = isset($validated['due_date']) ? Carbon::createFromFormat('d-m-Y', $validated['due_date'])->format('Y-m-d') : '';
 
-        $task = Task::where('user_id', auth()->user()->id)->searchTitle($validated['title'] ?? '')
+        $tasks = Task::where('user_id', auth()->user()->id)->searchTitle($validated['title'] ?? '')
             ->filterStatus($validated['status'] ?? '')
             ->filterDueDate($due_date)
             ->latest()
-            ->get();
+            ->paginate(1)
+            ->withQueryString();
 
         return Response::success('Task Search Successful', [
-            'task' => $task
+            'task' => TaskResource::collection($tasks),
+            'meta' => [
+                'current_page' => $tasks->currentPage(),
+                'last_page' => $tasks->lastPage(),
+                'total' => $tasks->total(),
+            ],
+            'links' => [
+                'next' => $tasks->nextPageUrl(),
+                'prev' => $tasks->previousPageUrl(),
+            ]
         ], 200);
     }
 }
