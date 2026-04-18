@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -10,7 +11,9 @@ class HomeController extends Controller
 
     public function index()
     {
-        return view('admin.pages.home');
+        $users = User::withCount('tasks')->get();
+
+        return view('admin.pages.home',compact('users'));
     }
 
     public function logout(Request $request)

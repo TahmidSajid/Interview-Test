@@ -116,7 +116,7 @@ class RegisterController extends Controller
     {
         $data = [
             'token' => $token,
-            'user_info' => $user,
+            'user_info' => $user->only('name','email'),
         ];
 
         return Response::success('User Registration Successfull',$data,201);

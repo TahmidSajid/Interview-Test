@@ -55,7 +55,7 @@ class LoginController extends Controller
 
         if(Hash::check($validated['password'],$user->password)){
             $token = $user->createToken('auth_token')->accessToken;
-            $user = $user->only('email','password');
+            $user = $user->only('name','email');
             return $this->authenticated($request,$user,$token);
         }
 
